@@ -2,13 +2,18 @@
   "name": "autonormecompliance",
   "displayName": "AutoNormeCompliance",
   "description": "Visual Studio Code extension for Epitech students that automates the correction of EPITECH coding standards",
-  "version": "0.0.1",
+  "version": "1.0.2",
   "engines": {
     "vscode": "^1.77.0"
   },
+  "publisher": "RedBoardDev",
   "categories": [
     "Other"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RedBoardDev/AutoNormeCompliance"
+  },
   "activationEvents": [],
   "main": "./extension.js",
   "contributes": {
