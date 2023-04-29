@@ -4,20 +4,35 @@ All notable changes to the "autonormecompliance" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.0.6] - 2023-04-30
+
+### Changed
+
+- split the extension.js file into 4 distinct files
+
+### Added
+
+- work for C and haskell workspace / langague
+- ignore files specified in the .gitignore file
+
+### Fixed
+
+- C-01 code is get correctly now
+
 ## [1.0.5] - 2023-04-29
 
-## Added
+### Added
 
 - icon for the extension
 - activationEvents for .c file and C langague
 
-## Changed
+### Changed
 
 - move extension.js on src/
 
 ## [1.0.4] - 2023-04-29
 
-## Added
+### Added
 
 - verification for docker on the computer
 - README.md with to do list
