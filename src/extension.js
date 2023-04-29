@@ -3,11 +3,17 @@ const Docker = require('dockerode');
 const fs = require('fs');
 const path = require('path');
 
-const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 const diagnosticsCollection = vscode.languages.createDiagnosticCollection('CodingStyle');
 
 async function runDockerScript(deliveryDir, directoryPath) {
     return new Promise(async (resolve, reject) => {
+        let docker;
+        try {
+            docker = new Docker({ socketPath: '/var/run/docker.sock' });
+        } catch (error) {
+            vscode.window.showErrorMessage('Docker not found. Please install Docker and try again.');
+            return;
+        }
         try {
             const container = await docker.createContainer({
                 Image: 'ghcr.io/epitech/coding-style-checker:latest',

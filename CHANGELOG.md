@@ -4,6 +4,24 @@ All notable changes to the "autonormecompliance" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.0.5] - 2023-04-29
+
+## Added
+
+- icon for the extension
+- activationEvents for .c file and C langague
+
+## Changed
+
+- move extension.js on src/
+
+## [1.0.4] - 2023-04-29
+
+## Added
+
+- verification for docker on the computer
+- README.md with to do list
+
 ## [1.0.3] - 2023-04-29
 
 ### Added
