@@ -4,7 +4,22 @@ All notable changes to the "autonormecompliance" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [1.0.1] - 2023-04-29
+## [1.0.3] - 2023-04-29
+
+### Added
+
+- add diagnostics for each line with a coding style error
+- remove diagnostics when the line is modified
+
+### Fixed
+
+- create and remove the folder correctly
+
+### Removed
+
+- comment at the end of line when a coding style error was found
+
+## [1.0.2] - 2023-04-29
 
 ### Added
 

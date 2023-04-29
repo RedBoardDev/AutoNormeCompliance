@@ -4,8 +4,9 @@ const fs = require('fs');
 const path = require('path');
 
 const docker = new Docker({ socketPath: '/var/run/docker.sock' });
+const diagnosticsCollection = vscode.languages.createDiagnosticCollection('CodingStyle');
 
-async function runDockerScript(deliveryDir, reportsDir) {
+async function runDockerScript(deliveryDir, directoryPath) {
     return new Promise(async (resolve, reject) => {
         try {
             const container = await docker.createContainer({
@@ -14,14 +15,14 @@ async function runDockerScript(deliveryDir, reportsDir) {
                 HostConfig: {
                     Binds: [
                         `${deliveryDir}:/mnt/delivery`,
-                        `${reportsDir}:/mnt/reports`
+                        `${directoryPath}:/mnt/reports`
                     ]
                 },
                 AttachStdout: true,
                 AttachStderr: true
             });
             await container.start();
-            const stream = await container.attach({stream: true, stdout: true, stderr: true});
+            const stream = await container.attach({ stream: true, stdout: true, stderr: true });
             container.modem.demuxStream(stream, process.stdout, process.stderr);
 
             stream.on('end', async () => {
@@ -35,41 +36,65 @@ async function runDockerScript(deliveryDir, reportsDir) {
     });
 }
 
-async function commentLines(deliveryDir, reportFilePath) {
-    const reportContent = fs.readFileSync(reportFilePath, 'utf-8');
-    const lines = reportContent.split('\n');
+async function getFileContent(filePath) {
+    if (fs.existsSync(filePath)) {
+        const reportContent = await fs.promises.readFile(filePath, 'utf-8');
+        return reportContent;
+    }
+    return '';
+}
 
-    for (const line of lines) {
-        const match = line.match(/^(.+\.c):(\d+):/);
-        if (match) {
-            const filePath = path.join(deliveryDir, match[1]);
-            const lineNumber = parseInt(match[2], 10) - 1;
-            try {
-                const document = await vscode.workspace.openTextDocument(filePath);
-                const editor = await vscode.window.showTextDocument(document);
-                await editor.edit((editBuilder) => {
-                    const lineLength = document.lineAt(lineNumber).range.end.character;
-                    editBuilder.insert(new vscode.Position(lineNumber, lineLength), ' // CODING STYLE');
-                });
-            } catch (error) {
-                vscode.window.showErrorMessage(`Failed to comment line in file: ${filePath}, error: ${error.message}`);
-            }
-        }
+function reportCodingStyleDiagnostics(deliveryDir, fileContent) {
+    const lines = fileContent.split('\n');
+    const fileDiagnosticsMap = new Map();
+
+    lines.forEach(line => {
+        const match = line.match(/^(.+\.c):(\d+):/i);
+        if (!match)
+            return;
+        const filePath = path.join(deliveryDir, match[1]);
+        if (!fs.lstatSync(filePath).isFile() || path.extname(filePath) !== '.c')
+            return;
+
+        const lineNumber = parseInt(match[2], 10) - 1;
+        const severityMatch = line.match(/:(\s*)(MAJOR|MINOR|INFO):/);
+        const codeMatch = line.match(/:(\s*)(C-F\d+)/);
+        const severity = (severityMatch && severityMatch[2]) || 'N/A';
+        const code = (codeMatch && codeMatch[2]) || '';
+        const diagnosticMessage = `[${severity}] Coding style error ${code}`;
+
+        const range = new vscode.Range(new vscode.Position(lineNumber, 0), new vscode.Position(lineNumber, Number.MAX_VALUE));
+        const diagnostic = new vscode.Diagnostic(range, diagnosticMessage, vscode.DiagnosticSeverity.Warning);
+
+        const diagnostics = fileDiagnosticsMap.get(filePath) || [];
+        diagnostics.push(diagnostic);
+        fileDiagnosticsMap.set(filePath, diagnostics);
+    });
+    fileDiagnosticsMap.forEach((diagnostics, filePath) => {
+        const uri = vscode.Uri.file(filePath);
+        diagnosticsCollection.set(uri, diagnostics);
+    });
+}
+
+async function deleteFolder(folderPath) {
+    if (fs.existsSync(folderPath)) {
+        await fs.promises.rm(folderPath, { recursive: true, force: true });
     }
 }
 
-function deleteFolderRecursive(folderPath) {
-    if (fs.existsSync(folderPath)) {
-        fs.readdirSync(folderPath).forEach((file) => {
-            const curPath = path.join(folderPath, file);
-            if (fs.lstatSync(curPath).isDirectory()) {
-                deleteFolderRecursive(curPath);
-            } else {
-                fs.unlinkSync(curPath);
-            }
+function removeDiagnosticsOnLineChange(event) {
+    const documentUri = event.document.uri;
+    const diagnostics = diagnosticsCollection.get(documentUri) || [];
+
+    event.contentChanges.forEach(change => {
+        const startLine = change.range.start.line;
+        const endLine = change.range.end.line;
+        const updatedDiagnostics = diagnostics.filter(diagnostic => {
+            const diagnosticLine = diagnostic.range.start.line;
+            return diagnosticLine < startLine || diagnosticLine > endLine;
         });
-        fs.rmdirSync(folderPath);
-    }
+        diagnosticsCollection.set(documentUri, updatedDiagnostics);
+    });
 }
 
 function activate(context) {
@@ -80,21 +105,32 @@ function activate(context) {
             return;
         }
         const deliveryDir = workspaceFolders[0].uri.fsPath;
-        const reportsDir = path.join(deliveryDir, 'reports');
-        if (!fs.existsSync(reportsDir)) {
-            fs.mkdirSync(reportsDir);
-        }
-        await runDockerScript(deliveryDir, reportsDir);
-        const reportFilePath = path.join(reportsDir, 'coding-style-reports.log');
-        if (fs.existsSync(reportFilePath)) {
-            vscode.window.showInformationMessage(`Coding style report generated at: ${reportFilePath}`);
-            await commentLines(deliveryDir, reportFilePath);
-            deleteFolderRecursive(reportsDir);
-        } else {
-            vscode.window.showErrorMessage('Report file not found.');
+        const directoryPath = path.join(deliveryDir, 'reports');
+        try {
+            if (fs.existsSync(directoryPath)) {
+                fs.removeSync(directoryPath);
+            }
+            fs.mkdirSync(directoryPath);
+            await runDockerScript(deliveryDir, directoryPath);
+            const filePath = path.join(directoryPath, 'coding-style-reports.log');
+            if (fs.existsSync(filePath)) {
+                const fileContent = await getFileContent(filePath);
+                reportCodingStyleDiagnostics(deliveryDir, fileContent);
+                await deleteFolder(directoryPath);
+            } else {
+                vscode.window.showErrorMessage('Report file not found.');
+            }
+        } catch (error) {
+            vscode.window.showErrorMessage('An error occurred: ' + error.message);
+        } finally {
+            await deleteFolder(directoryPath);
         }
     });
     context.subscriptions.push(disposable);
+    vscode.workspace.onDidChangeTextDocument((event) => {
+        removeDiagnosticsOnLineChange(event);
+    });
+
 }
 
 function deactivate() { }
