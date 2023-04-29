@@ -15,6 +15,7 @@ The extension runs the checker in a Docker container and displays the results as
 
 <div>
     <h2>How to use the extension</h2>
+    <h4>Click on the 'CodingStyle' button or use the command palette:</h4>
     <ol>
         <li>Open your project folder in Visual Studio Code.</li>
         <li>Press "Ctrl+Shift+P" or "Cmd+Shift+P" to open the command palette.</li>
@@ -26,11 +27,11 @@ The extension runs the checker in a Docker container and displays the results as
 <h2>To Do List</h2>
 
 - [X] warning diagnostic when coding error found
-- [ ] check for more file than .c extension
-- [ ] Use epitec coding style script without docker
+- [X] check for more file than .c extension
+- [X] do not check file into .gitignore file
+- [ ] Use epitech coding style script without docker
 - [ ] fix basic error automatically
 - [ ] automatically check every X times
-- [ ] do not check file into .gitignore file
 
 <h2>License</h2>
 <p>This extension is licensed under the MIT License.</p>

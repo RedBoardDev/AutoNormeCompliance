@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [1.0.6] - 2023-04-30
 
+### Added
+
+- button 'CodingStyle' to use without the command palette
+
+## [1.0.6] - 2023-04-30
+
 ### Changed
 
 - split the extension.js file into 4 distinct files
