@@ -42,7 +42,7 @@ function registerCommands(context) {
 function registerButtons(context) {
     const statusBarBtn = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     statusBarBtn.command = 'extension.checkCodingStyle';
-    statusBarBtn.text = 'CodingStyle';
+    statusBarBtn.text = 'Coding Style';
     statusBarBtn.tooltip = 'Click to check the coding style';
     context.subscriptions.push(statusBarBtn);
     statusBarBtn.show();

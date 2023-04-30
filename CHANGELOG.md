@@ -4,7 +4,13 @@ All notable changes to the "autonormecompliance" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [1.0.6] - 2023-04-30
+## [1.0.8] - 2023-04-30
+
+### Added
+- base for the auto norme bot
+- automatic norme for the rule C-A3 with notification
+
+## [1.0.7] - 2023-04-30
 
 ### Added
 

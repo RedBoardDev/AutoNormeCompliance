@@ -15,7 +15,7 @@ The extension runs the checker in a Docker container and displays the results as
 
 <div>
     <h2>How to use the extension</h2>
-    <h4>Click on the 'CodingStyle' button or use the command palette:</h4>
+    <h4>Click on the 'Coding Style' button or use the command palette:</h4>
     <ol>
         <li>Open your project folder in Visual Studio Code.</li>
         <li>Press "Ctrl+Shift+P" or "Cmd+Shift+P" to open the command palette.</li>

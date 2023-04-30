@@ -2,7 +2,7 @@
   "name": "autonormecompliance",
   "displayName": "AutoNormeCompliance",
   "description": "Visual Studio Code extension for Epitech students that automates the correction of EPITECH coding standards",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "engines": {
     "vscode": "^1.77.0"
   },

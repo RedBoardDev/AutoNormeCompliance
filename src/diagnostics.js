@@ -1,28 +1,35 @@
 const path = require('path');
 const vscode = require('vscode');
 const { getFileContent, isSupportedFile, isIgnoredFile } = require('./fileUtils');
+const { autoNormeSwitcher } = require("./autonorme/autoNormeSwitcher");
 
 const diagnosticsCollection = vscode.languages.createDiagnosticCollection('CodingStyle');
 
-function createDiagnosticFromMatch(match, lineNumber) {
+function createDiagnosticFromMatch(match, lineNumber, typeBool) {
     const severity = match[3] || 'N/A';
     const code = match[4] || '';
     const diagnosticMessage = `[${severity}] Coding style error ${code}`;
+    const type = (typeBool === false ? vscode.DiagnosticSeverity.Warning : vscode.DiagnosticSeverity.Information);
     const range = new vscode.Range(new vscode.Position(lineNumber, 0), new vscode.Position(lineNumber, Number.MAX_VALUE));
-    const diagnostic = new vscode.Diagnostic(range, diagnosticMessage, vscode.DiagnosticSeverity.Warning);
+    const diagnostic = new vscode.Diagnostic(range, diagnosticMessage, type);
     return diagnostic;
 }
 
 function processLine(line, deliveryDir, gitignoreContent, fileDiagnosticsMap) {
+    let tmpBool = false;
     const match = line.match(/^(.+?):(\d+): (MAJOR|MINOR|INFO):([A-Z]-[A-Z]\d+)/i);
     if (!match)
-         return;
+        return;
     const filePath = path.join(deliveryDir, match[1]);
     const relativeFilePath = match[1].replace(/^\.\//, '');
     if (!isSupportedFile(filePath) || isIgnoredFile(gitignoreContent, relativeFilePath) === true)
         return;
     const lineNumber = parseInt(match[2]) - 1;
-    const diagnostic = createDiagnosticFromMatch(match, lineNumber);
+    if (match[4]) {
+        console.log(filePath, relativeFilePath);
+        tmpBool = autoNormeSwitcher(match[4], filePath, relativeFilePath, lineNumber)
+    }
+    const diagnostic = createDiagnosticFromMatch(match, lineNumber, tmpBool);
     const diagnosticFiles = fileDiagnosticsMap.get(filePath) || [];
     diagnosticFiles.push(diagnostic);
     fileDiagnosticsMap.set(filePath, diagnosticFiles);
