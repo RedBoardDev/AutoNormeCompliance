@@ -1,9 +1,9 @@
 
-<h1 align="center">Auto norme compliance Extension</h1>
+<h1 align="center">Epitech norme compliance Extension</h1>
 
-<p>This is a Visual Studio Code extension that checks the Epitech coding style of C files using the <a href="https://github.com/Epitech/coding-style-checker">Epitech Coding Style Checker</a>.
+<p>This is a Visual Studio Code extension that checks the Epitech coding style using the <a href="https://github.com/Epitech/coding-style-checker">Epitech Coding Style Checker</a>.
 </br>
-The extension runs the checker in a Docker container and displays the results as diagnostics in the editor.</p>
+The extension runs the checker in a Docker container and displays the results as diagnostics in the editor. Some rules can be correct by the AutoNorme.</p>
 
 <h2>Requirements</h2>
 <ul>
@@ -11,7 +11,7 @@ The extension runs the checker in a Docker container and displays the results as
     <li>Docker</li>
 </ul>
 <h2>Installation</h2>
-<p>You can install the extension from the <a href="https://marketplace.visualstudio.com/items?itemName=redboarddev.autonormecompliance">Visual Studio Code Marketplace</a> or by searching for "AutoNormeCompliance" in the extension manager.</p>
+<p>You can install the extension from the <a href="https://marketplace.visualstudio.com/items?itemName=redboarddev.epitechnormecompliance">Visual Studio Code Marketplace</a> or by searching for "EpitechNormeCompliance" in the extension manager.</p>
 
 <div>
     <h2>How to use the extension</h2>
@@ -24,6 +24,11 @@ The extension runs the checker in a Docker container and displays the results as
     </ol>
 </div>
 
+<h2>AutoNorme: Handled Rules</h2>
+<ul>
+    <li>C-A3 - LINE BREAK AT THE END OF FILE</li>
+</ul>
+
 <h2>To Do List</h2>
 
 - [X] warning diagnostic when coding error found
@@ -32,6 +37,7 @@ The extension runs the checker in a Docker container and displays the results as
 - [ ] Use epitech coding style script without docker
 - [ ] fix basic error automatically
 - [ ] automatically check every X times
+- [ ] check more rules than banana checker
 
 <h2>License</h2>
 <p>This extension is licensed under the MIT License.</p>
